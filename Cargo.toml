@@ -1,0 +1,12 @@
+[package]
+name = "iceportal_gpx"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ctrlc = "3.2.4"
+geo-types = "0.7.8"
+gpx = "0.8.6"
+iceportal = "1.0.4"
