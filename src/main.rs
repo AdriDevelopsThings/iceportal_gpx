@@ -43,7 +43,7 @@ async fn main() {
                     println!("GPSStatus is invalid");
                 }
             } else if let Err(e) = status {
-                println!("Error while fetching: {}, retrying in 5 seconds...", e);
+                println!("Error while fetching: {:?}, retrying in 5 seconds...", e);
             }
             tokio::time::sleep(Duration::from_secs(5)).await;
         }
