@@ -1,22 +1,24 @@
-use std::{time::Duration, fs::File};
+use std::{fs::File, time::Duration};
 
-use gpx::{Gpx, Track, TrackSegment, Waypoint, write, GpxVersion};
-use iceportal::{ICEPortal, status::GpsStatus};
 use geo_types::Point;
+use gpx::{write, Gpx, GpxVersion, Track, TrackSegment, Waypoint};
+use iceportal::{status::GpsStatus, ICEPortal};
 
 fn close_and_write(g: Gpx) {
-    let file = File::create("output.gpx")
-        .expect("Error while creating file");
-    write(&g, file)
-        .expect("Error while writing gpx data to file");
+    let file = File::create("output.gpx").expect("Error while creating file");
+    write(&g, file).expect("Error while writing gpx data to file");
 }
 
 #[tokio::main]
 async fn main() {
-    let mut g = Gpx { version: GpxVersion::Gpx11, ..Default::default() };
+    let mut g = Gpx {
+        version: GpxVersion::Gpx11,
+        ..Default::default()
+    };
     let mut track = Track::new();
-    let trip = ICEPortal::fetch_trip_info().await
-        .expect("Error while sending request to iceportal api: check if you are connected to the bahn wifi");
+    let trip = ICEPortal::fetch_trip_info().await.expect(
+        "Error while sending request to iceportal api: check if you are connected to the bahn wifi",
+    );
     track.name = Some(trip.trip.train_type + trip.trip.vzn.as_str());
     g.tracks.push(track);
     let track = g.tracks.get_mut(0).unwrap();
@@ -34,9 +36,9 @@ async fn main() {
     tokio::spawn(async move {
         loop {
             let status = ICEPortal::fetch_status().await;
-            if let Ok(train) = status { 
+            if let Ok(train) = status {
                 if train.gps_status == GpsStatus::Valid {
-                    let waypoint = Waypoint::new(Point::new(train.longitude, train.latitude));                    
+                    let waypoint = Waypoint::new(Point::new(train.longitude, train.latitude));
                     status_sender.send(waypoint).expect("lol");
                     println!("Fetched location...");
                 } else {
